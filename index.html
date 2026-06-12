@@ -142,7 +142,7 @@
         function startGame(){
             if(validNames === false){
                 main.innerHTML = '<span>Schreibe die Namen aller Spieler getrennt durch ein Komma hier rein: </span><br><input id="PlayersInput"><button onclick="checkBefor()">Bestätigen</button>';
-            } else if(gamemode === false && validNames === true){
+            } else if(validNames === true){
                 main.innerHTML = `<span>Wähle eine Kategorie: </span><br><select id="typeGamemode">
                     <option value="tiere">Tiere</option>
                     <option value="gegenstände">Gegenstände</option>
@@ -151,17 +151,17 @@
         }
 
         function checkBefor(){
-            imposter = '';
             if(validNames === false){
                 names = document.getElementById('PlayersInput').value.trim();
-                names = names.split(',');
+                names = names.split(',').map(name => name.trim());
                 console.log(names);
                 validNames = true;
-                if(round === 0){
-                    names.forEach(e => {
+                names.forEach(e => {
+                    if(!points[e]){
                         points[e] = 0;
-                    });
-                }
+                    }
+                });
+                updatePoints();
                 startGame();
             } else if(gamemode === false){
                 const typeGamemode = document.getElementById('typeGamemode');
@@ -194,7 +194,7 @@
                     telePromter = telePromter + `<b style="cursor: pointer" onclick="alert('Crewmate - ${word}');">${e}</b><br>`;
                 }
             });
-            main.innerHTML = `<h2>Wer ist der Imposter?</h2><br><h4>Fahre den Cursor über deinen Spieler Namen und sieh ob du Imposter oder Crewmate bist und Merke dir das Word</h4>${telePromter}<br><button onclick="startRound()">Runde Starten</button>`;
+            main.innerHTML = `<h2>Wer ist der Imposter?</h2><br><h4>Fahre den Cursor über deinen Spieler Namen und sieh ob du Imposter oder Crewmate bist und Merke dir das Word</h4>${telePromter}<br><button onclick="startRound()">Nächste Phase</button>`;
         }
 
         function startRound(){
@@ -244,41 +244,38 @@
             telePromter = '';
             names.forEach(e => {
                 if(votes[e] > 0){
-                    telePromter = telePromter + `<b>${e}</b><span> mit ${votes[e]} Stimmen</span>`;
+                    telePromter = telePromter + `<b>${e}</b><span> mit ${votes[e]} Stimmen</span><br>`;
                 }
             });
             if(voted === names.length){
                 main.innerHTML = `<h2>Voting beendet</h2><br><span>Gevotet wurde gegen:</span><br>${telePromter}<br><button onclick="ShowImposter()">Imposter Aufdecken</button>`;
             }
-            if(votes[imposter] >= names.length/2){
-                names.forEach(e => {
-                    if(imposter !== e){
-                        points[e] = points[e] + 250;
-                        points[imposter] = points[imposter] - 50;
-                    }
-                });
-            }
         }
 
         function ShowImposter(){
-            main.innerHTML = `<h2>Voting beendet</h2><br><span>Imposter ist: <b>${imposter}</b>... Imposter, was war das Word</span><input id="imposterCheck"><button onclick="checkImposterWord()">Prüfen</button>`;
+            main.innerHTML = `<h2>Der Imposter ist: <b>${imposter}</b></h2><br><span>Imposter, was war das Word?</span><br><input id="imposterCheck"><button onclick="checkImposterWord()">Prüfen</button>`;
         }
 
         function checkImposterWord(){
             let theGuess = document.getElementById('imposterCheck').value
-            if(word.toLocaleLowerCase() === theGuess.toLowerCase()){
-                main.innerHTML = '<h2>Imposter lag richtig<h2><button onclick="startGame()">Neue Runde</button>';
+            if(word.toLowerCase() === theGuess.toLowerCase()){
+                main.innerHTML = '<h2>Imposter lag richtig!</h2><button onclick="nextRound()">Nächste Runde</button>';
                 points[imposter] = points[imposter] + 500;
             } else {
-                main.innerHTML = '<h2>Imposter lag Falsch<h2><button onclick="startGame()">Neue Runde</button>';
+                main.innerHTML = '<h2>Imposter lag Falsch!</h2><button onclick="nextRound()">Nächste Runde</button>';
                 names.forEach(e => {
                     if(imposter !== e){
                         points[e] = points[e] + 250;
-                        points[imposter] = points[imposter] - 50;
                     }
                 });
+                points[imposter] = points[imposter] - 50;
             }
             updatePoints();
+        }
+
+        function nextRound(){
+            gamemode = false;
+            startGame();
         }
 
         function updatePoints(){
