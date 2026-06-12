@@ -189,9 +189,9 @@
             telePromter = '';
             names.forEach((e) => {
                 if(imposter === e){
-                    telePromter = telePromter + `<b style="cursor: pointer" title="Imposter - ${imposterWord}">${e}</b><br>`;
+                    telePromter = telePromter + `<b style="cursor: pointer" onclick="alert('Imposter - ${imposterWord}');">${e}</b><br>`;
                 } else {
-                    telePromter = telePromter + `<b style="cursor: pointer" title="Crewmate - ${word}">${e}</b><br>`;
+                    telePromter = telePromter + `<b style="cursor: pointer" onclick="alert('Crewmate - ${word}');">${e}</b><br>`;
                 }
             });
             main.innerHTML = `<h2>Wer ist der Imposter?</h2><br><h4>Fahre den Cursor über deinen Spieler Namen und sieh ob du Imposter oder Crewmate bist und Merke dir das Word</h4>${telePromter}<br><button onclick="startRound()">Runde Starten</button>`;
